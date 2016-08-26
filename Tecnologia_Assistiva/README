@@ -1,0 +1,16 @@
+
+Step 1: Encontrar o IP do gateway (bridge). Abaixo algumas maneiras, 
+recomendo a número 4: 
+   1. Use a UPnP discovery app to find Philips hue in your network.
+   2. Use our broker server discover process by visiting www.meethue.com/api/nupnp
+   3. Log into your wireless router and look Philips hue up in the DHCP table.
+   4. Hue App method: Download the official Philips hue app. Connect your phone to the network the hue bridge is on. Start the hue app(iOS described here). Push link connect to the bridge. Use the app to find the bridge and try controlling lights. All working -- Go to the settings menu in the app. Go to My Bridge. Go to Network settings. Switch off the DHCP toggle. The ip address of the bridge will show. Note the ip address, then switch DHCP back on
+
+
+Step 2: Registrar um username, assim como descrito no link
+http://www.developers.meethue.com/documentation/getting-started. 
+A string do username deve ser assim: {"devicetype":"ManIoT#user"}	  
+
+
+Step 3: Após receber a string com seu username, colocá-la na variável
+"public static final String user", colocar o ip do gateway na variável "public static final String ip".

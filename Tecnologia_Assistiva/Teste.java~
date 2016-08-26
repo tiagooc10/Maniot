@@ -1,0 +1,59 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+
+public class Teste { 
+
+        Boolean TemTag=false; //Informa se existe tags no Banco
+
+        ManIoTHueDriver m; //Driver Lampadas Phillips Hue
+        Storage s;  //Driver Banco de Dados
+
+        int[] anteriores = new int[]{100,100,100};
+
+        public class Atualizar extends Thread implements Runnable{
+            volatile boolean flag = true;
+
+            public void run() {
+                while(flag){
+                    //Verifica se Existe tags recentes no banco
+		    try{
+                        if(s.selectData(5)==1){
+                          TemTag=true;
+                        }
+                        else{
+                          TemTag=false;
+                        }
+                    }
+                    catch(Exception e){
+                    } 
+                    if(TemTag){
+                        System.out.println("Tem tag, ligando as luz !");
+                        m.changeOnOff(1,true);
+                    }
+                    else{
+			System.out.println("Nao tem tag, desligando a luz !");
+                        m.changeOnOff(1,false);
+                    }
+                    try{
+                        Thread.sleep(100);
+                        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAA\n\n\n\n");
+                    } catch(Exception e){
+
+                    }  
+                }
+            }
+        }
+
+	public Teste() {
+            m=new  ManIoTHueDriver();
+            s=new Storage();
+            Atualizar a=new Atualizar();
+            a.start();
+    	}
+
+	public static void main(String[] args) throws Exception {
+	    Teste e = new Teste();
+	}
+}

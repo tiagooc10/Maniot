@@ -1,0 +1,112 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+
+public class Exemplo { 
+
+        String name, id;
+        InputStream is=null;
+        String result=null;
+        String line=null;
+  
+        Boolean NaoTemTag=false; //Informa se existe tags no Banco
+
+        ManIoTHueDriver m; //Driver Lâmpadas Phillips Hue
+        Storage s;  //Driver Banco de Dados
+        ControllerSwitchWemo cw; //Driver Tomada Belkin Wemo
+
+        private float anterior=290;
+        int[] anteriores = new int[]{100,100,100};
+
+        public class Atualizar extends Thread implements Runnable{
+            volatile boolean flag = true;
+
+            public void run() {
+                while(flag){
+                    //Insere Consumo
+                    try{
+                        //Integer consumo=cw.ReadConsumptionStatus();
+                        //String c=consumo.toString();
+                        //s.insertData(4,c);
+                    }
+                    catch(Exception e){
+                    }
+
+		    UpdateIris();
+              
+                    if(NaoTemTag){
+                        System.out.println("Nao tem tags, desligando as luzes !");
+                        for(int i=1; i<=3; i++){
+                            m.changeOnOff(i,false);
+                        }
+                    }
+                    else{
+                        for(int i=1; i<=3; i++) {
+                            m.changeOnOff(i,true);
+                            try {
+                                m.changeBrightness(i,Convert_Brightness(anteriores[i-1]));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    try{
+                        Thread.sleep(100 );
+                        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAA\n\n\n\n");
+                    } catch(Exception e){
+
+                    }  
+                }
+            }
+        }
+
+        public void UpdateIris(){  //Atualizar os valores da luminosidade com os dados do iris
+          for(int i=1; i<=3; i++){
+            int aux=-1;
+            try{
+              aux=s.selectData(i);
+            }
+            catch(Exception e){
+            }
+            if(aux!=-1){
+              anteriores[i-1]=aux;
+            }
+          }
+          for(int i=1; i<=3; i++){
+            System.out.println("L1: " + anteriores[i-1]);
+          }
+        }
+
+	public Exemplo() {
+            m=new  ManIoTHueDriver();
+            s=new Storage();
+            cw=new ControllerSwitchWemo();
+            
+            Atualizar a=new Atualizar();
+            a.start();
+    	}
+
+        public int Convert_Brightness(float lux){
+            if(lux<100) {
+                return 250;
+            }
+            if(lux>100 && lux<200) {
+                return 200;
+            }
+            if(lux>200 && lux<300){
+                return 150;
+            }
+            if(lux>300 && lux<400){
+                return 100;
+            }
+            if(lux>400 && lux<500){
+                return 50;
+            }
+            return 0;
+        }
+	
+	public static void main(String[] args) throws Exception {
+     	    Exemplo e = new Exemplo();
+	}
+}
